@@ -137,16 +137,15 @@ header{
     font-size:13px;
 }
 
-/* ---------------- Tabs ---------------- */
+/* ---------------- Tabs (shared base) ---------------- */
 
 .tabs{
     display:flex;
     gap:8px;
-    margin:20px 0;
     flex-wrap:wrap;
 }
 
-.tab{
+.tab, .subtab{
     flex:1;
     min-width:70px;
     padding:14px 8px;
@@ -157,9 +156,41 @@ header{
     font-size:14px;
 }
 
-.tab.active{
+.tab.active, .subtab.active{
     background:white;
     color:var(--bg);
+}
+
+/* Top-level nav gets more visual weight */
+.main-tabs{
+    margin:20px 0 16px;
+}
+
+.main-tabs .tab{
+    padding:16px 8px;
+    font-size:15px;
+}
+
+/* Difficulty sub-tabs sit inside the Challenges panel, slightly smaller */
+.sub-tabs{
+    margin-bottom:16px;
+}
+
+.subtab{
+    background:rgba(255,255,255,.08);
+    font-size:13px;
+    padding:10px 8px;
+}
+
+.subtab.active{
+    background:var(--orange);
+    color:white;
+}
+
+/* ---------------- Panels ---------------- */
+
+.panel{
+    animation:pop .25s ease;
 }
 
 /* ---------------- Challenge Cards ---------------- */
@@ -285,28 +316,56 @@ header{
     transform:translateY(-2px);
 }
 
-/* ---------------- Drinks ---------------- */
+/* ---------------- Drinks panel ---------------- */
+
+.drink-display{
+    background:white;
+    color:var(--text);
+    border-radius:22px;
+    padding:40px 20px;
+    text-align:center;
+    box-shadow:var(--shadow);
+    margin-bottom:24px;
+}
+
+.drink-icon{
+    font-size:40px;
+}
+
+.drink-display h2{
+    font-size:56px;
+    margin:10px 0 4px;
+}
+
+.drink-display p{
+    color:var(--secondary);
+    font-size:14px;
+}
 
 .drinkButtons{
     display:flex;
     justify-content:center;
     gap:25px;
-    margin:30px 0;
+    margin:10px 0;
 }
 
 .drinkButtons button{
-    width:65px;
-    height:65px;
+    width:70px;
+    height:70px;
     border-radius:50%;
     background:white;
     color:var(--bg);
-    font-size:30px;
+    font-size:32px;
     font-weight:bold;
     box-shadow:var(--shadow);
 }
 
 .drinkButtons button:hover{
     transform:scale(1.08);
+}
+
+.drinkButtons button:active{
+    transform:scale(.94);
 }
 
 /* ---------------- Floating Animation ---------------- */

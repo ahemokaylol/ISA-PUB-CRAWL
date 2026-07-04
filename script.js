@@ -2,7 +2,6 @@
 // PUB CRAWL CHALLENGE
 // ===============================
 
-
 const firebaseConfig = {
   apiKey: "AIzaSyBOXgD_ed-VRx6BjWKrQEM-9I-4fos2Wfk",
   authDomain: "isa-pub-crawl.firebaseapp.com",
@@ -68,6 +67,11 @@ if (!playerId) {
 let player = { name: "", points: 0, drinks: 0, completed: {} };
 let allPlayers = {};
 
+// UI state — tracked explicitly instead of read off DOM classes, so switching
+// panels and switching difficulty never interfere with each other.
+let currentMainTab = "challenges";
+let currentLevel = "easy";
+
 // ---------- Elements ----------
 
 const landing = document.getElementById("landing");
@@ -83,6 +87,11 @@ const progressEl = document.getElementById("progress");
 
 const challengeList = document.getElementById("challengeList");
 const leaderboardList = document.getElementById("leaderboardList");
+const drinksBigEl = document.getElementById("drinksBig");
+
+const challengesPanel = document.getElementById("challengesPanel");
+const leaderboardPanel = document.getElementById("leaderboardPanel");
+const drinksPanel = document.getElementById("drinksPanel");
 
 const plusDrink = document.getElementById("plusDrink");
 const minusDrink = document.getElementById("minusDrink");
@@ -115,7 +124,7 @@ function showApp() {
   landing.classList.add("hidden");
   app.classList.remove("hidden");
   welcome.innerHTML = `Hi, ${escapeHtml(player.name)} 👋`;
-  loadChallenges("easy");
+  loadChallenges(currentLevel);
   listenToPlayers();
 }
 
@@ -131,36 +140,52 @@ function listenToPlayers() {
       player.completed = me.completed || {};
     }
     updateStats();
-
-    const activeTab = document.querySelector(".tab.active")?.dataset.tab;
-    if (activeTab === "leaderboard") {
-      renderLeaderboard();
-    } else if (activeTab) {
-      loadChallenges(activeTab);
-    }
+    renderActivePanel();
   });
 }
 
-// ---------- Tabs ----------
+function renderActivePanel() {
+  if (currentMainTab === "challenges") {
+    loadChallenges(currentLevel);
+  } else if (currentMainTab === "leaderboard") {
+    renderLeaderboard();
+  }
+  // drinks panel just reads updateStats() output, nothing extra to render
+}
 
-document.querySelectorAll(".tab").forEach((tab) => {
+// ---------- Top-level tabs (Challenges / Leaderboard / Drinks) ----------
+
+document.querySelectorAll(".main-tabs .tab").forEach((tab) => {
   tab.addEventListener("click", () => {
-    document.querySelectorAll(".tab").forEach((t) => t.classList.remove("active"));
+    document.querySelectorAll(".main-tabs .tab").forEach((t) => t.classList.remove("active"));
     tab.classList.add("active");
 
-    const type = tab.dataset.tab;
+    currentMainTab = tab.dataset.tab;
 
-    if (type === "leaderboard") {
-      challengeList.classList.add("hidden");
-      randomBtn.classList.add("hidden");
-      leaderboardList.classList.remove("hidden");
+    challengesPanel.classList.add("hidden");
+    leaderboardPanel.classList.add("hidden");
+    drinksPanel.classList.add("hidden");
+
+    if (currentMainTab === "challenges") {
+      challengesPanel.classList.remove("hidden");
+      loadChallenges(currentLevel);
+    } else if (currentMainTab === "leaderboard") {
+      leaderboardPanel.classList.remove("hidden");
       renderLeaderboard();
-    } else {
-      leaderboardList.classList.add("hidden");
-      challengeList.classList.remove("hidden");
-      randomBtn.classList.remove("hidden");
-      loadChallenges(type);
+    } else if (currentMainTab === "drinks") {
+      drinksPanel.classList.remove("hidden");
     }
+  });
+});
+
+// ---------- Difficulty sub-tabs (inside Challenges panel) ----------
+
+document.querySelectorAll(".sub-tabs .subtab").forEach((tab) => {
+  tab.addEventListener("click", () => {
+    document.querySelectorAll(".sub-tabs .subtab").forEach((t) => t.classList.remove("active"));
+    tab.classList.add("active");
+    currentLevel = tab.dataset.level;
+    loadChallenges(currentLevel);
   });
 });
 
@@ -247,20 +272,14 @@ function updateStats() {
   pointsEl.innerText = player.points;
   drinksEl.innerText = player.drinks;
   progressEl.innerText = `${Object.keys(player.completed).length}/30`;
+  if (drinksBigEl) drinksBigEl.innerText = player.drinks;
 }
 
 // ---------- Random Challenge ----------
 
 randomBtn.onclick = () => {
-  const currentTab = document.querySelector(".tab.active").dataset.tab;
-
-  if (currentTab === "leaderboard") {
-    alert("Pick a difficulty tab first!");
-    return;
-  }
-
   const unfinished = challenges.filter(
-    (c) => c.category === currentTab && !player.completed[c.id]
+    (c) => c.category === currentLevel && !player.completed[c.id]
   );
 
   if (unfinished.length === 0) {

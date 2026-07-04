@@ -48,23 +48,44 @@
             </div>
         </header>
 
-        <div class="tabs">
-            <button class="tab active" data-tab="easy">Easy</button>
-            <button class="tab" data-tab="medium">Medium</button>
-            <button class="tab" data-tab="hard">Hard</button>
-            <button class="tab" data-tab="leaderboard">🏆 Board</button>
+        <!-- Top-level navigation -->
+        <div class="tabs main-tabs">
+            <button class="tab active" data-tab="challenges">🎯 Challenges</button>
+            <button class="tab" data-tab="leaderboard">🏆 Leaderboard</button>
+            <button class="tab" data-tab="drinks">🍺 Drinks</button>
         </div>
 
-        <div id="challengeList"></div>
-        <div id="leaderboardList" class="hidden"></div>
+        <!-- Challenges panel -->
+        <div id="challengesPanel" class="panel">
+            <div class="tabs sub-tabs">
+                <button class="subtab active" data-level="easy">Easy</button>
+                <button class="subtab" data-level="medium">Medium</button>
+                <button class="subtab" data-level="hard">Hard</button>
+            </div>
 
-        <button id="randomChallenge">
-            🎲 Random Challenge
-        </button>
+            <div id="challengeList"></div>
 
-        <div class="drinkButtons">
-            <button id="minusDrink">−</button>
-            <button id="plusDrink">+</button>
+            <button id="randomChallenge">
+                🎲 Random Challenge
+            </button>
+        </div>
+
+        <!-- Leaderboard panel -->
+        <div id="leaderboardPanel" class="panel hidden">
+            <div id="leaderboardList"></div>
+        </div>
+
+        <!-- Drinks panel -->
+        <div id="drinksPanel" class="panel hidden">
+            <div class="drink-display">
+                <span class="drink-icon">🍺</span>
+                <h2 id="drinksBig">0</h2>
+                <p>drinks tonight</p>
+            </div>
+            <div class="drinkButtons">
+                <button id="minusDrink">−</button>
+                <button id="plusDrink">+</button>
+            </div>
         </div>
     </div>
 </div>
