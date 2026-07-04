@@ -4,46 +4,43 @@
 
 // ---------- Challenge List ----------
 
-const challenges = {
-    easy: [
-        "Photobomb someone",
-        "Take a selfie with the drunkest person you see",
-        "Record a TikTok/Reel and post it",
-        "Beat a stranger at Rock-Paper-Scissors",
-        "Compliment a stranger's outfit and take a photo",
-        "Ask someone how to say 'Cheers' in their language",
-        "Convince a stranger you're from another nationality",
-        "Ask a stranger to recommend your next drink",
-        "Sit at a random table like you're part of the group",
-        "Ask someone what your vibe is"
-    ],
+const challenges = [
+  // EASY
+  { id: 1, category: "easy", points: 1, text: "Photobomb someone" },
+  { id: 2, category: "easy", points: 1, text: "Take a selfie with the drunkest person you see" },
+  { id: 3, category: "easy", points: 1, text: "Record a TikTok/Reel and post it" },
+  { id: 4, category: "easy", points: 1, text: "Beat a stranger at Rock-Paper-Scissors" },
+  { id: 5, category: "easy", points: 1, text: "Compliment a stranger's outfit and take a photo" },
+  { id: 6, category: "easy", points: 1, text: "Ask someone how to say 'Cheers' in their language" },
+  { id: 7, category: "easy", points: 1, text: "Convince a stranger you're from another nationality" },
+  { id: 8, category: "easy", points: 1, text: "Ask a stranger to recommend your next drink" },
+  { id: 9, category: "easy", points: 1, text: "Sit at a random table like you're part of the group" },
+  { id: 10, category: "easy", points: 1, text: "Ask someone what your vibe is" },
 
-    medium: [
-        "Serenade a stranger",
-        "Win a chug competition",
-        "Order a drink in the weirdest accent possible",
-        "Ask for a lighter, then pretend to be a monkey",
-        "Dance the Macarena with 3 strangers",
-        "Start a conga line",
-        "Fake-propose to a stranger",
-        "Pose with a stranger like you're on a movie poster",
-        "Challenge a stranger to a 5-second dance battle",
-        "Get a stranger to give you a motivational speech"
-    ],
+  // MEDIUM
+  { id: 11, category: "medium", points: 3, text: "Serenade a stranger" },
+  { id: 12, category: "medium", points: 3, text: "Win a chug competition" },
+  { id: 13, category: "medium", points: 3, text: "Order a drink in the weirdest accent possible" },
+  { id: 14, category: "medium", points: 3, text: "Ask for a lighter, then pretend to be a monkey" },
+  { id: 15, category: "medium", points: 3, text: "Dance the Macarena with 3 strangers" },
+  { id: 16, category: "medium", points: 3, text: "Start a conga line" },
+  { id: 17, category: "medium", points: 3, text: "Fake-propose to a stranger" },
+  { id: 18, category: "medium", points: 3, text: "Pose with a stranger like you're on a movie poster" },
+  { id: 19, category: "medium", points: 3, text: "Challenge a stranger to a 5-second dance battle" },
+  { id: 20, category: "medium", points: 3, text: "Get a stranger to give you a motivational speech" },
 
-    hard: [
-        "Get a free drink",
-        "Convince strangers to chant 'MVP! MVP! MVP!'",
-        "Win an arm-wrestling match",
-        "Start a dance circle with strangers",
-        "Convince someone to carry you for a photo",
-        "Recreate a famous movie scene",
-        "Get 5 strangers to do the same pose",
-        "Pretend to be long-lost cousins with a stranger",
-        "Create a secret handshake with a stranger",
-        "Get a bartender to invent a drink name for you"
-    ]
-};
+  // HARD
+  { id: 21, category: "hard", points: 5, text: "Get a free drink" },
+  { id: 22, category: "hard", points: 5, text: "Convince strangers to chant 'MVP! MVP! MVP!'" },
+  { id: 23, category: "hard", points: 5, text: "Win an arm-wrestling match" },
+  { id: 24, category: "hard", points: 5, text: "Start a dance circle with strangers" },
+  { id: 25, category: "hard", points: 5, text: "Convince someone to carry you for a photo" },
+  { id: 26, category: "hard", points: 5, text: "Recreate a famous movie scene" },
+  { id: 27, category: "hard", points: 5, text: "Get 5 strangers to do the same pose" },
+  { id: 28, category: "hard", points: 5, text: "Pretend to be long-lost cousins with a stranger" },
+  { id: 29, category: "hard", points: 5, text: "Create a secret handshake with a stranger" },
+  { id: 30, category: "hard", points: 5, text: "Get a bartender to invent a drink name for you" }
+];
 
 // ---------- Points ----------
 
