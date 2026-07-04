@@ -5,21 +5,66 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pub Crawl Challenge Tracker</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background: #1a1a2e; color: #fff; }
-        h1 { text-align: center; color: #ffcc00; }
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 0; 
+            padding: 20px; 
+            background: #172840; 
+            color: #fff; 
+        }
+        h1 { text-align: center; color: #ffcc00; margin-bottom: 10px; }
         .container { max-width: 800px; margin: 0 auto; }
-        input, button { padding: 12px; margin: 8px 0; width: 100%; border-radius: 8px; border: none; font-size: 16px; box-sizing: border-box; }
-        button { background: #ffcc00; color: #000; font-weight: bold; cursor: pointer; }
+        input, button { 
+            padding: 12px; 
+            margin: 8px 0; 
+            width: 100%; 
+            border-radius: 8px; 
+            border: none; 
+            font-size: 16px; 
+            box-sizing: border-box; 
+        }
+        button { 
+            background: #ffcc00; 
+            color: #000; 
+            font-weight: bold; 
+            cursor: pointer; 
+        }
         button:hover { background: #ffd633; }
-        .challenge { display: flex; align-items: center; padding: 12px; background: #16213e; margin: 8px 0; border-radius: 8px; }
-        .challenge input { margin-right: 12px; transform: scale(1.5); }
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #333; }
+        
+        .section { 
+            background: #103152; 
+            padding: 15px; 
+            margin: 20px 0; 
+            border-radius: 12px; 
+        }
+        .challenge { 
+            display: flex; 
+            align-items: center; 
+            padding: 12px; 
+            background: #172840; 
+            margin: 8px 0; 
+            border-radius: 8px; 
+        }
+        .challenge input { 
+            margin-right: 12px; 
+            transform: scale(1.5); 
+        }
+        table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            margin-top: 10px; 
+            background: #103152; 
+        }
+        th, td { 
+            padding: 12px; 
+            text-align: left; 
+            border-bottom: 1px solid #2a4a7a; 
+        }
         th { background: #ffcc00; color: #000; }
         .tab { display: none; }
         .tab.active { display: block; }
         .nav { display: flex; justify-content: center; margin: 20px 0; gap: 10px; }
-        .points { color: #ffcc00; font-weight: bold; }
+        .points-header { color: #ffcc00; font-size: 1.3em; margin: 10px 0; }
     </style>
 </head>
 <body>
@@ -37,8 +82,9 @@
             
             <div id="challengesList"></div>
             
-            <div style="margin:20px 0; font-size:18px; background:#16213e; padding:15px; border-radius:8px;">
-                🍺 Drinks: <input type="number" id="drinkCount" value="0" min="0" style="width:80px;" onchange="updateDrinks()">
+            <div class="section" style="margin-top:25px;">
+                <strong>🍺 Drinks so far:</strong> 
+                <input type="number" id="drinkCount" value="0" min="0" style="width:90px;" onchange="updateDrinks()">
             </div>
             
             <button onclick="submitProgress()" style="background:#00cc66;">✅ Save Progress</button>
@@ -60,44 +106,42 @@
         } catch(e) {}
 
         const challenges = [
-            // 1 POINT - EASY
-            { id: 1, name: "Photobomb a stranger's photo", points: 1 },
-            { id: 2, name: "Selfie with the drunkest person", points: 1 },
-            { id: 3, name: "Record & post a TikTok/Reel", points: 1 },
-            { id: 4, name: "Beat a stranger at rock-paper-scissors", points: 1 },
-            { id: 5, name: "Compliment outfit + photo together", points: 1 },
-            { id: 6, name: "Learn 'cheers' in another language", points: 1 },
-            { id: 7, name: "Convince stranger you're from another country", points: 1 },
-            { id: 8, name: "Ask stranger for drink recommendation", points: 1 },
-            { id: 9, name: "Sit at random table for group photo", points: 1 },
-            { id: 10, name: "Ask stranger what your 'vibe' is", points: 1 },
+            // 1 POINT
+            {group: "1pt", id: 1, name: "Photobomb a stranger's photo", points: 1},
+            {group: "1pt", id: 2, name: "Selfie with the drunkest person", points: 1},
+            {group: "1pt", id: 3, name: "Record & post a TikTok/Reel", points: 1},
+            {group: "1pt", id: 4, name: "Beat stranger at rock-paper-scissors", points: 1},
+            {group: "1pt", id: 5, name: "Compliment outfit + photo together", points: 1},
+            {group: "1pt", id: 6, name: "Learn 'cheers' in another language", points: 1},
+            {group: "1pt", id: 7, name: "Convince stranger you're from another country", points: 1},
+            {group: "1pt", id: 8, name: "Ask stranger for drink recommendation", points: 1},
+            {group: "1pt", id: 9, name: "Sit at random table for group photo", points: 1},
+            {group: "1pt", id: 10, name: "Ask stranger what your 'vibe' is", points: 1},
 
-            // 3 POINTS - MEDIUM
-            { id: 11, name: "Serenade a stranger", points: 3 },
-            { id: 12, name: "Win a chug competition", points: 3 },
-            { id: 13, name: "Order drink in weirdest accent", points: 3 },
-            { id: 14, name: "Ask for lighter then act like monkey", points: 3 },
-            { id: 15, name: "Dance Macarena with 3+ strangers", points: 3 },
-            { id: 16, name: "Start a conga line with 3+ strangers", points: 3 },
-            { id: 17, name: "Fake-propose to a stranger", points: 3 },
-            { id: 18, name: "Pose like movie poster with stranger", points: 3 },
-            { id: 19, name: "5-second dance battle with stranger", points: 3 },
-            { id: 20, name: "Get motivational speech on camera", points: 3 },
+            // 3 POINTS
+            {group: "3pt", id: 11, name: "Serenade a stranger", points: 3},
+            {group: "3pt", id: 12, name: "Win a chug competition", points: 3},
+            {group: "3pt", id: 13, name: "Order drink in weirdest accent", points: 3},
+            {group: "3pt", id: 14, name: "Ask for lighter then act like monkey", points: 3},
+            {group: "3pt", id: 15, name: "Dance Macarena with 3+ strangers", points: 3},
+            {group: "3pt", id: 16, name: "Start conga line with 3+ strangers", points: 3},
+            {group: "3pt", id: 17, name: "Fake-propose to a stranger", points: 3},
+            {group: "3pt", id: 18, name: "Pose like movie poster with stranger", points: 3},
+            {group: "3pt", id: 19, name: "5-second dance battle", points: 3},
+            {group: "3pt", id: 20, name: "Get motivational speech on camera", points: 3},
 
-            // 5 POINTS - HARD
-            { id: 21, name: "Get a free drink from a stranger", points: 5 },
-            { id: 22, name: "Get group to chant your name (10s+)", points: 5 },
-            { id: 23, name: "Win arm-wrestling against stranger", points: 5 },
-            { id: 24, name: "Start dance circle with 2+ strangers", points: 5 },
-            { id: 25, name: "Get stranger to carry you for photo", points: 5 },
-            { id: 26, name: "Recreate famous movie scene with group", points: 5 },
-            { id: 27, name: "Get 5+ strangers in same pose photo", points: 5 },
-            { id: 28, name: "Pretend long-lost cousins in video", points: 5 },
-            { id: 29, name: "Create & perform secret handshake", points: 5 },
-            { id: 30, name: "Get bartender to invent drink for you", points: 5 }
+            // 5 POINTS
+            {group: "5pt", id: 21, name: "Get a free drink from a stranger", points: 5},
+            {group: "5pt", id: 22, name: "Get group to chant your name (10s+)", points: 5},
+            {group: "5pt", id: 23, name: "Win arm-wrestling", points: 5},
+            {group: "5pt", id: 24, name: "Start dance circle with 2+ strangers", points: 5},
+            {group: "5pt", id: 25, name: "Get stranger to carry you for photo", points: 5},
+            {group: "5pt", id: 26, name: "Recreate famous movie scene", points: 5},
+            {group: "5pt", id: 27, name: "5+ strangers in same pose photo", points: 5},
+            {group: "5pt", id: 28, name: "Pretend long-lost cousins video", points: 5},
+            {group: "5pt", id: 29, name: "Create & perform secret handshake", points: 5},
+            {group: "5pt", id: 30, name: "Bartender invents drink for you", points: 5}
         ];
-
-        // ... (rest of the script is the same as before - functions for saveName, renderChallenges, etc.)
 
         function saveName() {
             const name = document.getElementById('playerName').value.trim();
@@ -109,24 +153,38 @@
 
         function renderChallenges() {
             const container = document.getElementById('challengesList');
-            if (!currentPlayer) return container.innerHTML = "<p>Enter your name above.</p>";
+            if (!currentPlayer) return container.innerHTML = "<p style='text-align:center;'>Enter your name above to start.</p>";
 
-            let html = `<h2>Welcome, ${currentPlayer}!</h2><p class="points">1pt • 3pt • 5pt challenges</p>`;
-            
-            challenges.forEach(ch => {
-                const checked = (players[currentPlayer] && players[currentPlayer].challenges && players[currentPlayer].challenges[ch.id]) ? 'checked' : '';
-                html += `
-                    <div class="challenge">
-                        <input type="checkbox" ${checked} onchange="toggleChallenge(${ch.id}, this.checked)">
-                        <label>${ch.name} <strong>(+${ch.points} pts)</strong></label>
-                    </div>
-                `;
+            let html = `<h2>Welcome, ${currentPlayer}!</h2>`;
+
+            // Group by points
+            const groups = { "1pt": [], "3pt": [], "5pt": [] };
+            challenges.forEach(ch => groups[ch.group].push(ch));
+
+            Object.keys(groups).forEach(group => {
+                if (groups[group].length === 0) return;
+                const pt = group === "1pt" ? 1 : group === "3pt" ? 3 : 5;
+                html += `<div class="section"><div class="points-header">${pt} POINT CHALLENGES</div>`;
+                
+                groups[group].forEach(ch => {
+                    const checked = (players[currentPlayer] && players[currentPlayer].challenges && players[currentPlayer].challenges[ch.id]) ? 'checked' : '';
+                    html += `
+                        <div class="challenge">
+                            <input type="checkbox" ${checked} onchange="toggleChallenge(${ch.id}, this.checked)">
+                            <label>${ch.name} <strong>(+${ch.points} pts)</strong></label>
+                        </div>
+                    `;
+                });
+                html += `</div>`;
             });
+
             container.innerHTML = html;
 
             const drinks = players[currentPlayer] && players[currentPlayer].drinks ? players[currentPlayer].drinks : 0;
             document.getElementById('drinkCount').value = drinks;
         }
+
+        // Rest of functions (toggle, updateDrinks, etc.) remain the same as previous version
 
         function toggleChallenge(id, completed) {
             if (!currentPlayer) return;
@@ -161,7 +219,7 @@
 
         function submitProgress() {
             if (!currentPlayer) return alert("Enter name first");
-            alert("✅ Progress saved! Check Leaderboard.");
+            alert("✅ Progress saved!");
             refreshLeaderboard();
         }
 
@@ -182,7 +240,7 @@
             });
             
             html += '</table>';
-            board.innerHTML = sorted.length ? html : '<p>No players yet. Start completing challenges!</p>';
+            board.innerHTML = sorted.length ? html : '<p>No players yet.</p>';
         }
 
         function showTab(n) {
