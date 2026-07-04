@@ -4,25 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ISA Pub Crawl Tracker</title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 0; padding: 15px; background: #172840; color: #e0e0e0; }
-        h1 { text-align: center; color: #a0d8ff; }
-        .container { max-width: 800px; margin: 0 auto; }
-        input, button { padding: 14px; margin: 8px 0; width: 100%; border-radius: 8px; border: none; font-size: 16px; box-sizing: border-box; }
-        button { background: #2a7de1; color: white; font-weight: bold; cursor: pointer; }
-        button:hover { background: #3a8ef2; }
-        .section { background: #103152; padding: 18px; margin: 15px 0; border-radius: 12px; }
-        .challenge { display: flex; align-items: flex-start; padding: 14px; background: #1e3a5f; margin: 8px 0; border-radius: 10px; }
-        .challenge input { margin-right: 15px; margin-top: 4px; transform: scale(1.5); flex-shrink: 0; }
-        .challenge label { flex: 1; line-height: 1.4; }
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; background: #103152; }
-        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #2a4a7a; }
-        th { background: #2a7de1; color: white; }
-        .tab { display: none; }
-        .tab.active { display: block; }
-        .nav { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin: 15px 0; }
-        .points-header { color: #a0d8ff; font-size: 1.4em; margin: 10px 0; text-align: center; font-weight: bold; }
-    </style>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div class="container">
@@ -30,176 +12,39 @@
         
         <div class="nav">
             <button onclick="showMain()">Home</button>
-            <button onclick="showTab(1)">1 Point</button>
-            <button onclick="showTab(2)">3 Points</button>
-            <button onclick="showTab(3)">5 Points</button>
-            <button onclick="showTab(4)">Leaderboard</button>
+            <button onclick="showChallenges()">Challenges</button>
+            <button onclick="showLeaderboard()">Leaderboard</button>
         </div>
 
-        <!-- Main Home -->
-        <div id="mainScreen">
+        <!-- Home -->
+        <div id="homeScreen">
             <input type="text" id="playerName" placeholder="Your name / nickname" />
             <button onclick="saveName()">Join / Load Progress</button>
             <div id="welcomeMessage"></div>
+            
+            <div class="drinks-box">
+                🍺 Drinks: <input type="number" id="drinkCount" value="0" min="0" onchange="updateDrinks()">
+            </div>
+            <button onclick="submitProgress()" class="save-btn">✅ Save Progress</button>
         </div>
 
-        <!-- Point Tabs -->
-        <div id="tab1" class="tab"></div>
-        <div id="tab2" class="tab"></div>
-        <div id="tab3" class="tab"></div>
+        <!-- Challenges Screen -->
+        <div id="challengesScreen" class="screen">
+            <div class="sub-nav">
+                <button onclick="showPointTab(1)" class="point-btn">1 Point</button>
+                <button onclick="showPointTab(3)" class="point-btn">3 Points</button>
+                <button onclick="showPointTab(5)" class="point-btn">5 Points</button>
+            </div>
+            <div id="pointContent"></div>
+        </div>
 
         <!-- Leaderboard -->
-        <div id="tab4" class="tab">
-            <button onclick="refreshLeaderboard()" style="margin-bottom:15px;">🔄 Refresh Leaderboard</button>
+        <div id="leaderboardScreen" class="screen">
+            <button onclick="refreshLeaderboard()" class="refresh-btn">🔄 Refresh Leaderboard</button>
             <div id="leaderboard"></div>
         </div>
     </div>
 
-    <script>
-        let players = {};
-        let currentPlayer = '';
-
-        try {
-            players = JSON.parse(localStorage.getItem('pubCrawlPlayers')) || {};
-            currentPlayer = localStorage.getItem('currentPlayer') || '';
-        } catch(e) {}
-
-        const challenges = [
-            // 1 Point
-            {group:1, id:1, name:"Photobomb a stranger's photo", points:1},
-            {group:1, id:2, name:"Selfie with the drunkest person", points:1},
-            {group:1, id:3, name:"Record & post a TikTok/Reel", points:1},
-            {group:1, id:4, name:"Beat stranger at rock-paper-scissors", points:1},
-            {group:1, id:5, name:"Compliment outfit + photo together", points:1},
-            {group:1, id:6, name:"Learn 'cheers' in another language", points:1},
-            {group:1, id:7, name:"Convince stranger you're from another country", points:1},
-            {group:1, id:8, name:"Ask stranger for drink recommendation", points:1},
-            {group:1, id:9, name:"Sit at random table for group photo", points:1},
-            {group:1, id:10, name:"Ask stranger what your 'vibe' is", points:1},
-
-            // 3 Points
-            {group:3, id:11, name:"Serenade a stranger", points:3},
-            {group:3, id:12, name:"Win a chug competition", points:3},
-            {group:3, id:13, name:"Order drink in weirdest accent", points:3},
-            {group:3, id:14, name:"Ask for lighter then act like monkey", points:3},
-            {group:3, id:15, name:"Dance Macarena with 3+ strangers", points:3},
-            {group:3, id:16, name:"Start conga line with 3+ strangers", points:3},
-            {group:3, id:17, name:"Fake-propose to a stranger", points:3},
-            {group:3, id:18, name:"Pose like movie poster with stranger", points:3},
-            {group:3, id:19, name:"5-second dance battle", points:3},
-            {group:3, id:20, name:"Get motivational speech on camera", points:3},
-
-            // 5 Points
-            {group:5, id:21, name:"Get a free drink from a stranger", points:5},
-            {group:5, id:22, name:"Get group to chant your name (10s+)", points:5},
-            {group:5, id:23, name:"Win arm-wrestling", points:5},
-            {group:5, id:24, name:"Start dance circle with 2+ strangers", points:5},
-            {group:5, id:25, name:"Get stranger to carry you for photo", points:5},
-            {group:5, id:26, name:"Recreate famous movie scene", points:5},
-            {group:5, id:27, name:"5+ strangers in same pose photo", points:5},
-            {group:5, id:28, name:"Pretend long-lost cousins video", points:5},
-            {group:5, id:29, name:"Create & perform secret handshake", points:5},
-            {group:5, id:30, name:"Bartender invents drink for you", points:5}
-        ];
-
-        function saveName() {
-            const name = document.getElementById('playerName').value.trim();
-            if (!name) return alert("Please enter your name");
-            currentPlayer = name;
-            localStorage.setItem('currentPlayer', name);
-            document.getElementById('welcomeMessage').innerHTML = `<h2>Welcome, ${name}!</h2>`;
-        }
-
-        function toggleChallenge(id, completed) {
-            if (!currentPlayer) return;
-            if (!players[currentPlayer]) players[currentPlayer] = {challenges: {}, drinks: 0};
-            if (!players[currentPlayer].challenges) players[currentPlayer].challenges = {};
-            players[currentPlayer].challenges[id] = completed;
-            try { localStorage.setItem('pubCrawlPlayers', JSON.stringify(players)); } catch(e) {}
-        }
-
-        function updateDrinks() {
-            if (!currentPlayer) return;
-            if (!players[currentPlayer]) players[currentPlayer] = {challenges: {}, drinks: 0};
-            players[currentPlayer].drinks = parseInt(document.getElementById('drinkCount').value) || 0;
-            try { localStorage.setItem('pubCrawlPlayers', JSON.stringify(players)); } catch(e) {}
-        }
-
-        function calculateScore(playerName) {
-            if (!players[playerName] || !players[playerName].challenges) return 0;
-            let score = 0;
-            Object.keys(players[playerName].challenges).forEach(id => {
-                if (players[playerName].challenges[id]) {
-                    const ch = challenges.find(c => c.id == id);
-                    if (ch) score += ch.points;
-                }
-            });
-            return score;
-        }
-
-        function submitProgress() {
-            if (!currentPlayer) return alert("Enter your name first");
-            alert("✅ Progress saved!");
-            refreshLeaderboard();
-        }
-
-        function refreshLeaderboard() {
-            const board = document.getElementById('leaderboard');
-            let html = '<table><tr><th>Rank</th><th>Player</th><th>Points</th><th>Drinks</th></tr>';
-            
-            const sorted = Object.keys(players)
-                .map(name => ({
-                    name, 
-                    score: calculateScore(name),
-                    drinks: players[name].drinks || 0
-                }))
-                .sort((a, b) => b.score - a.score);
-
-            sorted.forEach((p, i) => {
-                html += `<tr><td>${i+1}</td><td>${p.name}</td><td><strong>${p.score}</strong></td><td>${p.drinks}</td></tr>`;
-            });
-            html += '</table>';
-            board.innerHTML = sorted.length ? html : '<p>No players yet.</p>';
-        }
-
-        function showTab(n) {
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            document.getElementById('mainScreen').style.display = 'none';
-            document.getElementById('tab' + n).classList.add('active');
-            renderPointTab(n);
-        }
-
-        function showMain() {
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            document.getElementById('mainScreen').style.display = 'block';
-        }
-
-        function renderPointTab(tab) {
-            const pt = tab;
-            const container = document.getElementById('tab' + tab);
-            let html = `<div class="points-header">${pt} POINT CHALLENGES</div>`;
-            
-            const filtered = challenges.filter(c => c.group === pt);
-            filtered.forEach(ch => {
-                const checked = (players[currentPlayer] && players[currentPlayer].challenges && players[currentPlayer].challenges[ch.id]) ? 'checked' : '';
-                html += `
-                    <div class="challenge">
-                        <input type="checkbox" ${checked} onchange="toggleChallenge(${ch.id}, this.checked)">
-                        <label>${ch.name} <strong>(+${ch.points} pts)</strong></label>
-                    </div>
-                `;
-            });
-            container.innerHTML = html;
-        }
-
-        // Init
-        window.onload = () => {
-            if (currentPlayer) {
-                document.getElementById('playerName').value = currentPlayer;
-                document.getElementById('welcomeMessage').innerHTML = `<h2>Welcome, ${currentPlayer}!</h2>`;
-            }
-            refreshLeaderboard();
-        };
-    </script>
+    <script src="script.js"></script>
 </body>
 </html>
