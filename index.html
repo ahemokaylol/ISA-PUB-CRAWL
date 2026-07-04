@@ -12,31 +12,13 @@
             background: #172840; 
             color: #e0e0e0; 
         }
-        h1 { text-align: center; color: #a0d8ff; margin-bottom: 10px; }
+        h1 { text-align: center; color: #a0d8ff; }
         .container { max-width: 800px; margin: 0 auto; }
-        input, button { 
-            padding: 14px; 
-            margin: 8px 0; 
-            width: 100%; 
-            border-radius: 8px; 
-            border: none; 
-            font-size: 16px; 
-            box-sizing: border-box; 
-        }
-        button { 
-            background: #2a7de1; 
-            color: white; 
-            font-weight: bold; 
-            cursor: pointer; 
-        }
+        input, button { padding: 14px; margin: 8px 0; width: 100%; border-radius: 8px; border: none; font-size: 16px; box-sizing: border-box; }
+        button { background: #2a7de1; color: white; font-weight: bold; cursor: pointer; }
         button:hover { background: #3a8ef2; }
         
-        .section { 
-            background: #103152; 
-            padding: 18px; 
-            margin: 15px 0; 
-            border-radius: 12px; 
-        }
+        .section { background: #103152; padding: 18px; margin: 20px 0; border-radius: 12px; }
         .challenge { 
             display: flex; 
             align-items: flex-start; 
@@ -45,33 +27,25 @@
             margin: 8px 0; 
             border-radius: 10px; 
         }
-        .challenge input { 
-            margin-right: 15px; 
-            margin-top: 4px; 
-            transform: scale(1.5); 
-            flex-shrink: 0; 
-        }
-        .challenge label { flex: 1; line-height: 1.35; }
+        .challenge input { margin-right: 15px; margin-top: 4px; transform: scale(1.5); flex-shrink: 0; }
+        .challenge label { flex: 1; line-height: 1.4; }
         
         table { width: 100%; border-collapse: collapse; margin-top: 10px; background: #103152; }
         th, td { padding: 12px; text-align: left; border-bottom: 1px solid #2a4a7a; }
         th { background: #2a7de1; color: white; }
-
         .tab { display: none; }
         .tab.active { display: block; }
-        .nav { display: flex; flex-wrap: wrap; justify-content: center; margin: 15px 0; gap: 8px; }
-        .points-header { color: #a0d8ff; font-size: 1.35em; margin: 10px 0; text-align: center; font-weight: bold; }
+        .nav { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin: 15px 0; }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>🍻 Pub Crawl Challenge Tracker</h1>
-        
+        <h1>🍻 ISA Pub Crawl Tracker</h1>
         <div class="nav">
             <button onclick="showTab(0)">My Progress</button>
-            <button onclick="showTab(1)">1 Point</button>
-            <button onclick="showTab(2)">3 Points</button>
-            <button onclick="showTab(3)">5 Points</button>
+            <button onclick="showTab(1)">1pt</button>
+            <button onclick="showTab(2)">3pt</button>
+            <button onclick="showTab(3)">5pt</button>
             <button onclick="showTab(4)">Leaderboard</button>
         </div>
 
