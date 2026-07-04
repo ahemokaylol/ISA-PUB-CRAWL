@@ -8,14 +8,14 @@
         body { 
             font-family: Arial, sans-serif; 
             margin: 0; 
-            padding: 20px; 
+            padding: 15px; 
             background: #172840; 
-            color: #fff; 
+            color: #e0e0e0; 
         }
-        h1 { text-align: center; color: #ffcc00; margin-bottom: 10px; }
+        h1 { text-align: center; color: #a0d8ff; margin-bottom: 15px; }
         .container { max-width: 800px; margin: 0 auto; }
         input, button { 
-            padding: 12px; 
+            padding: 14px; 
             margin: 8px 0; 
             width: 100%; 
             border-radius: 8px; 
@@ -24,30 +24,36 @@
             box-sizing: border-box; 
         }
         button { 
-            background: #ffcc00; 
-            color: #000; 
+            background: #2a7de1; 
+            color: white; 
             font-weight: bold; 
             cursor: pointer; 
         }
-        button:hover { background: #ffd633; }
+        button:hover { background: #3a8ef2; }
         
         .section { 
             background: #103152; 
-            padding: 15px; 
+            padding: 18px; 
             margin: 20px 0; 
             border-radius: 12px; 
         }
         .challenge { 
             display: flex; 
-            align-items: center; 
-            padding: 12px; 
-            background: #172840; 
+            align-items: flex-start; 
+            padding: 14px; 
+            background: #1e3a5f; 
             margin: 8px 0; 
-            border-radius: 8px; 
+            border-radius: 10px; 
         }
         .challenge input { 
-            margin-right: 12px; 
+            margin-right: 15px; 
+            margin-top: 4px; 
             transform: scale(1.5); 
+            flex-shrink: 0; 
+        }
+        .challenge label { 
+            flex: 1; 
+            line-height: 1.35; 
         }
         table { 
             width: 100%; 
@@ -60,11 +66,17 @@
             text-align: left; 
             border-bottom: 1px solid #2a4a7a; 
         }
-        th { background: #ffcc00; color: #000; }
+        th { background: #2a7de1; color: white; }
         .tab { display: none; }
         .tab.active { display: block; }
         .nav { display: flex; justify-content: center; margin: 20px 0; gap: 10px; }
-        .points-header { color: #ffcc00; font-size: 1.3em; margin: 10px 0; }
+        .points-header { 
+            color: #a0d8ff; 
+            font-size: 1.4em; 
+            margin: 10px 0 15px 0; 
+            text-align: center; 
+            font-weight: bold; 
+        }
     </style>
 </head>
 <body>
@@ -82,12 +94,12 @@
             
             <div id="challengesList"></div>
             
-            <div class="section" style="margin-top:25px;">
+            <div class="section" style="margin-top:25px; text-align:center;">
                 <strong>🍺 Drinks so far:</strong> 
-                <input type="number" id="drinkCount" value="0" min="0" style="width:90px;" onchange="updateDrinks()">
+                <input type="number" id="drinkCount" value="0" min="0" style="width:100px; display:inline-block;" onchange="updateDrinks()">
             </div>
             
-            <button onclick="submitProgress()" style="background:#00cc66;">✅ Save Progress</button>
+            <button onclick="submitProgress()" style="background:#00b36b;">✅ Save Progress</button>
         </div>
 
         <div id="tab2" class="tab">
@@ -153,11 +165,10 @@
 
         function renderChallenges() {
             const container = document.getElementById('challengesList');
-            if (!currentPlayer) return container.innerHTML = "<p style='text-align:center;'>Enter your name above to start.</p>";
+            if (!currentPlayer) return container.innerHTML = "<p style='text-align:center; padding:20px;'>Enter your name above to start.</p>";
 
             let html = `<h2>Welcome, ${currentPlayer}!</h2>`;
 
-            // Group by points
             const groups = { "1pt": [], "3pt": [], "5pt": [] };
             challenges.forEach(ch => groups[ch.group].push(ch));
 
@@ -183,8 +194,6 @@
             const drinks = players[currentPlayer] && players[currentPlayer].drinks ? players[currentPlayer].drinks : 0;
             document.getElementById('drinkCount').value = drinks;
         }
-
-        // Rest of functions (toggle, updateDrinks, etc.) remain the same as previous version
 
         function toggleChallenge(id, completed) {
             if (!currentPlayer) return;
@@ -240,7 +249,7 @@
             });
             
             html += '</table>';
-            board.innerHTML = sorted.length ? html : '<p>No players yet.</p>';
+            board.innerHTML = sorted.length ? html : '<p>No players yet. Start on My Progress tab!</p>';
         }
 
         function showTab(n) {
