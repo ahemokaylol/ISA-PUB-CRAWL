@@ -2,24 +2,7 @@
 // PUB CRAWL CHALLENGE
 // ===============================
 
-// ---------- FIREBASE SETUP (do this before you push live) ----------
-// 1. Go to https://console.firebase.google.com -> Add project (free, ~1 min)
-// 2. Build > Realtime Database > Create Database > start in "test mode" for now
-// 3. Project settings (gear icon) > General > "Your apps" > click </> (Web app) > register it
-// 4. Copy the firebaseConfig object it gives you and paste it below, replacing the placeholder
-// 5. In Realtime Database > Rules, paste this and click Publish:
-//      { "rules": { ".read": true, ".write": true } }
-//    This makes it open read/write — fine for one casual night, since you said anyone
-//    editing anyone's score is part of the fun. Lock it down or delete the DB after.
 
-// Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
-
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
   apiKey: "AIzaSyBOXgD_ed-VRx6BjWKrQEM-9I-4fos2Wfk",
   authDomain: "isa-pub-crawl.firebaseapp.com",
