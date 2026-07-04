@@ -93,6 +93,7 @@ header{ margin-bottom:20px; }
 .lb-row:nth-child(2) .lb-rank{ color:#9ca3af; }
 .lb-row:nth-child(3) .lb-rank{ color:#c2703d; }
 .lb-name{ flex:1; font-weight:700; word-break:break-word; }
+.lb-drinks{ font-size:13px; color:var(--secondary); white-space:nowrap; }
 .lb-points{ font-weight:800; color:var(--bg); }
 .lb-empty{ text-align:center; color:#d1d5db; padding:30px 10px; }
 
@@ -357,7 +358,7 @@ function completeChallenge(challenge) {
 // ---------- Leaderboard ----------
 function renderLeaderboard() {
   const rows = Object.entries(allPlayers)
-    .map(([id, p]) => ({ id, name: p.name || "???", points: p.points || 0 }))
+    .map(([id, p]) => ({ id, name: p.name || "???", points: p.points || 0, drinks: p.drinks || 0 }))
     .sort((a, b) => b.points - a.points);
 
   if (rows.length === 0) {
@@ -368,6 +369,7 @@ function renderLeaderboard() {
     <div class="lb-row ${p.id === playerId ? "me" : ""}">
       <span class="lb-rank">#${i + 1}</span>
       <span class="lb-name">${escapeHtml(p.name)}${p.id === playerId ? " (you)" : ""}</span>
+      <span class="lb-drinks">🍺 ${p.drinks}</span>
       <span class="lb-points">${p.points} pts</span>
     </div>
   `).join("");
