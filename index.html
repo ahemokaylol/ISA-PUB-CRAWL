@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pub Crawl Challenge Tracker</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background: #1a1a2e; color: #fff; }
+        h1 { text-align: center; color: #ffcc00; }
+        .container { max-width: 800px; margin: 0 auto; }
+        input, button { padding: 12px; margin: 8px 0; width: 100%; border-radius: 8px; border: none; font-size: 16px; box-sizing: border-box; }
+        button { background: #ffcc00; color: #000; font-weight: bold; cursor: pointer; }
+        button:hover { background: #ffd633; }
+        .challenge { display: flex; align-items: center; padding: 12px; background: #16213e; margin: 8px 0; border-radius: 8px; }
+        .challenge input { margin-right: 12px; transform: scale(1.5); }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #333; }
+        th { background: #ffcc00; color: #000; }
+        .tab { display: none; }
+        .tab.active { display: block; }
+        .nav { display: flex; justify-content: center; margin: 20px 0; gap: 10px; }
+        .points { color: #ffcc00; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🍻 Pub Crawl Challenge Tracker</h1>
+        
+        <div class="nav">
+            <button onclick="showTab(1)">My Progress</button>
+            <button onclick="showTab(2)">Leaderboard</button>
+        </div>
+
+        <div id="tab1" class="tab active">
+            <input type="text" id="playerName" placeholder="Your name / nickname" />
+            <button onclick="saveName()">Join / Load Progress</button>
+            
+            <div id="challengesList"></div>
+            
+            <div style="margin:20px 0; font-size:18px; background:#16213e; padding:15px; border-radius:8px;">
+                🍺 Drinks: <input type="number" id="drinkCount" value="0" min="0" style="width:80px;" onchange="updateDrinks()">
+            </div>
+            
+            <button onclick="submitProgress()" style="background:#00cc66;">✅ Save Progress</button>
+        </div>
+
+        <div id="tab2" class="tab">
+            <button onclick="refreshLeaderboard()" style="margin-bottom:15px;">🔄 Refresh Leaderboard</button>
+            <div id="leaderboard"></div>
+        </div>
+    </div>
+
+    <script>
+        let players = {};
+        let currentPlayer = '';
+
+        try {
+            players = JSON.parse(localStorage.getItem('pubCrawlPlayers')) || {};
+            currentPlayer = localStorage.getItem('currentPlayer') || '';
+        } catch(e) {}
+
+        const challenges = [
+            // 1 POINT - EASY
+            { id: 1, name: "Photobomb a stranger's photo", points: 1 },
+            { id: 2, name: "Selfie with the drunkest person", points: 1 },
+            { id: 3, name: "Record & post a TikTok/Reel", points: 1 },
+            { id: 4, name: "Beat a stranger at rock-paper-scissors", points: 1 },
+            { id: 5, name: "Compliment outfit + photo together", points: 1 },
+            { id: 6, name: "Learn 'cheers' in another language", points: 1 },
+            { id: 7, name: "Convince stranger you're from another country", points: 1 },
+            { id: 8, name: "Ask stranger for drink recommendation", points: 1 },
+            { id: 9, name: "Sit at random table for group photo", points: 1 },
+            { id: 10, name: "Ask stranger what your 'vibe' is", points: 1 },
+
+            // 3 POINTS - MEDIUM
+            { id: 11, name: "Serenade a stranger", points: 3 },
+            { id: 12, name: "Win a chug competition", points: 3 },
+            { id: 13, name: "Order drink in weirdest accent", points: 3 },
+            { id: 14, name: "Ask for lighter then act like monkey", points: 3 },
+            { id: 15, name: "Dance Macarena with 3+ strangers", points: 3 },
+            { id: 16, name: "Start a conga line with 3+ strangers", points: 3 },
+            { id: 17, name: "Fake-propose to a stranger", points: 3 },
+            { id: 18, name: "Pose like movie poster with stranger", points: 3 },
+            { id: 19, name: "5-second dance battle with stranger", points: 3 },
+            { id: 20, name: "Get motivational speech on camera", points: 3 },
+
+            // 5 POINTS - HARD
+            { id: 21, name: "Get a free drink from a stranger", points: 5 },
+            { id: 22, name: "Get group to chant your name (10s+)", points: 5 },
+            { id: 23, name: "Win arm-wrestling against stranger", points: 5 },
+            { id: 24, name: "Start dance circle with 2+ strangers", points: 5 },
+            { id: 25, name: "Get stranger to carry you for photo", points: 5 },
+            { id: 26, name: "Recreate famous movie scene with group", points: 5 },
+            { id: 27, name: "Get 5+ strangers in same pose photo", points: 5 },
+            { id: 28, name: "Pretend long-lost cousins in video", points: 5 },
+            { id: 29, name: "Create & perform secret handshake", points: 5 },
+            { id: 30, name: "Get bartender to invent drink for you", points: 5 }
+        ];
+
+        // ... (rest of the script is the same as before - functions for saveName, renderChallenges, etc.)
+
+        function saveName() {
+            const name = document.getElementById('playerName').value.trim();
+            if (!name) return alert("Enter your name");
+            currentPlayer = name;
+            localStorage.setItem('currentPlayer', name);
+            renderChallenges();
+        }
+
+        function renderChallenges() {
+            const container = document.getElementById('challengesList');
+            if (!currentPlayer) return container.innerHTML = "<p>Enter your name above.</p>";
+
+            let html = `<h2>Welcome, ${currentPlayer}!</h2><p class="points">1pt • 3pt • 5pt challenges</p>`;
+            
+            challenges.forEach(ch => {
+                const checked = (players[currentPlayer] && players[currentPlayer].challenges && players[currentPlayer].challenges[ch.id]) ? 'checked' : '';
+                html += `
+                    <div class="challenge">
+                        <input type="checkbox" ${checked} onchange="toggleChallenge(${ch.id}, this.checked)">
+                        <label>${ch.name} <strong>(+${ch.points} pts)</strong></label>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+
+            const drinks = players[currentPlayer] && players[currentPlayer].drinks ? players[currentPlayer].drinks : 0;
+            document.getElementById('drinkCount').value = drinks;
+        }
+
+        function toggleChallenge(id, completed) {
+            if (!currentPlayer) return;
+            if (!players[currentPlayer]) players[currentPlayer] = {challenges: {}, drinks: 0};
+            if (!players[currentPlayer].challenges) players[currentPlayer].challenges = {};
+            players[currentPlayer].challenges[id] = completed;
+            saveToStorage();
+        }
+
+        function updateDrinks() {
+            if (!currentPlayer) return;
+            if (!players[currentPlayer]) players[currentPlayer] = {challenges: {}, drinks: 0};
+            players[currentPlayer].drinks = parseInt(document.getElementById('drinkCount').value) || 0;
+            saveToStorage();
+        }
+
+        function saveToStorage() {
+            try { localStorage.setItem('pubCrawlPlayers', JSON.stringify(players)); } catch(e) {}
+        }
+
+        function calculateScore(playerName) {
+            if (!players[playerName] || !players[playerName].challenges) return 0;
+            let score = 0;
+            Object.keys(players[playerName].challenges).forEach(id => {
+                if (players[playerName].challenges[id]) {
+                    const ch = challenges.find(c => c.id == id);
+                    if (ch) score += ch.points;
+                }
+            });
+            return score;
+        }
+
+        function submitProgress() {
+            if (!currentPlayer) return alert("Enter name first");
+            alert("✅ Progress saved! Check Leaderboard.");
+            refreshLeaderboard();
+        }
+
+        function refreshLeaderboard() {
+            const board = document.getElementById('leaderboard');
+            let html = '<table><tr><th>Rank</th><th>Player</th><th>Points</th><th>Drinks</th></tr>';
+            
+            const sorted = Object.keys(players)
+                .map(name => ({
+                    name, 
+                    score: calculateScore(name),
+                    drinks: players[name].drinks || 0
+                }))
+                .sort((a, b) => b.score - a.score);
+
+            sorted.forEach((p, i) => {
+                html += `<tr><td>${i+1}</td><td>${p.name}</td><td><strong>${p.score}</strong></td><td>${p.drinks}</td></tr>`;
+            });
+            
+            html += '</table>';
+            board.innerHTML = sorted.length ? html : '<p>No players yet. Start completing challenges!</p>';
+        }
+
+        function showTab(n) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.getElementById('tab' + n).classList.add('active');
+            if (n === 2) refreshLeaderboard();
+        }
+
+        window.onload = () => {
+            if (currentPlayer) {
+                document.getElementById('playerName').value = currentPlayer;
+                renderChallenges();
+            }
+            refreshLeaderboard();
+        };
+    </script>
+</body>
+</html>
