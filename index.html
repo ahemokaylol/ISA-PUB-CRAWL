@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🍻 Pub Crawl Challenge</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+    --bg:#172840;
+    --bg2:#103152;
+    --text:#172840;
+    --secondary:#6b7280;
+    --green:#22c55e;
+    --orange:#f59e0b;
+    --gold:#fbbf24;
+    --shadow:0 15px 35px rgba(0,0,0,.25);
+}
+*{ margin:0; padding:0; box-sizing:border-box; }
+html{ scroll-behavior:smooth; }
+body{
+    font-family:'Inter',sans-serif;
+    background:linear-gradient(180deg,var(--bg),var(--bg2));
+    min-height:100vh;
+    color:white;
+    display:flex;
+    justify-content:center;
+    padding:25px 15px;
+}
+.container{ width:100%; max-width:520px; }
+.hidden{ display:none !important; }
+
+/* Landing */
+#landing{ display:flex; flex-direction:column; gap:18px; margin-top:80px; text-align:center; }
+#landing h1{ font-size:2.2rem; font-weight:700; }
+#landing p{ color:#d1d5db; }
+input{ border:none; border-radius:16px; padding:18px; font-size:16px; outline:none; width:100%; }
+button{ border:none; cursor:pointer; font-family:inherit; transition:.2s; }
+#startBtn{ background:white; color:var(--bg); padding:18px; border-radius:16px; font-weight:700; font-size:16px; }
+#startBtn:active{ transform:scale(.97); }
+
+/* App */
+header{ margin-bottom:20px; }
+#welcome{ margin-bottom:18px; font-size:1.7rem; }
+.stats{ display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
+.stat{ background:white; color:var(--text); border-radius:18px; padding:15px; text-align:center; box-shadow:var(--shadow); }
+.stat span{ font-size:24px; }
+.stat h3{ margin-top:8px; font-size:24px; }
+.stat p{ margin-top:5px; color:var(--secondary); font-size:13px; }
+
+/* Main tabs: Challenges / Leaderboard / Drinks */
+.main-tabs{ display:flex; gap:8px; margin:20px 0 16px; }
+.main-tabs .tab{
+    flex:1; padding:16px 6px; border-radius:14px;
+    background:rgba(255,255,255,.15); color:white; font-weight:600; font-size:14px;
+}
+.main-tabs .tab.active{ background:white; color:var(--bg); }
+
+/* Difficulty sub-tabs, only ever inside the Challenges panel */
+.sub-tabs{ display:flex; gap:8px; margin-bottom:16px; }
+.sub-tabs .subtab{
+    flex:1; padding:10px 6px; border-radius:12px;
+    background:rgba(255,255,255,.08); color:white; font-weight:600; font-size:13px;
+}
+.sub-tabs .subtab.active{ background:white; color:var(--bg); }
+
+.panel{ animation:pop .25s ease; }
+
+/* Challenge cards */
+#challengeList{ display:flex; flex-direction:column; gap:14px; }
+.challenge{
+    background:white; color:var(--text); border-radius:18px; padding:18px;
+    display:flex; justify-content:space-between; align-items:center;
+    box-shadow:var(--shadow); animation:pop .3s ease;
+}
+.challenge h4{ font-size:16px; margin-bottom:6px; }
+.challenge small{ color:var(--secondary); }
+.challenge button{ background:var(--bg); color:white; padding:10px 18px; border-radius:12px; font-weight:600; }
+.challenge.completed{ border:3px solid var(--green); opacity:.8; }
+.challenge.completed button{ background:var(--green); }
+
+/* Leaderboard */
+#leaderboardList{ display:flex; flex-direction:column; gap:10px; }
+.lb-row{
+    background:white; color:var(--text); border-radius:16px; padding:14px 18px;
+    display:flex; align-items:center; gap:14px; box-shadow:var(--shadow); animation:pop .3s ease;
+}
+.lb-row.me{ border:3px solid var(--gold); }
+.lb-rank{ font-weight:800; font-size:16px; color:var(--secondary); width:30px; }
+.lb-row:nth-child(1) .lb-rank{ color:var(--gold); }
+.lb-row:nth-child(2) .lb-rank{ color:#9ca3af; }
+.lb-row:nth-child(3) .lb-rank{ color:#c2703d; }
+.lb-name{ flex:1; font-weight:700; word-break:break-word; }
+.lb-drinks{ font-size:13px; color:var(--secondary); white-space:nowrap; }
+.lb-points{ font-weight:800; color:var(--bg); }
+.lb-empty{ text-align:center; color:#d1d5db; padding:30px 10px; }
+
+/* Drinks */
+.drink-display{ background:white; color:var(--text); border-radius:22px; padding:40px 20px; text-align:center; box-shadow:var(--shadow); margin-bottom:24px; }
+.drink-icon{ font-size:40px; }
+.drink-display h2{ font-size:56px; margin:10px 0 4px; }
+.drink-display p{ color:var(--secondary); font-size:14px; }
+.drinkButtons{ display:flex; justify-content:center; gap:25px; }
+.drinkButtons button{ width:70px; height:70px; border-radius:50%; background:white; color:var(--bg); font-size:32px; font-weight:bold; box-shadow:var(--shadow); }
+.drinkButtons button:active{ transform:scale(.94); }
+
+@keyframes pop{ 0%{ transform:scale(.9); opacity:0; } 100%{ transform:scale(1); opacity:1; } }
+::-webkit-scrollbar{ width:8px; }
+::-webkit-scrollbar-thumb{ background:#33537d; border-radius:20px; }
+
+@media(max-width:480px){
+    #landing h1{ font-size:1.8rem; }
+    .stat{ padding:12px; }
+    .stat h3{ font-size:20px; }
+    .challenge{ flex-direction:column; align-items:flex-start; gap:15px; }
+    .challenge button{ width:100%; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+    <!-- Landing -->
+    <div id="landing">
+        <h1>🍻 Pub Crawl Challenge</h1>
+        <p>Who's playing tonight?</p>
+        <input type="text" id="playerName" placeholder="Enter your name">
+        <button id="startBtn">Start</button>
+    </div>
+
+    <!-- Main App -->
+    <div id="app" class="hidden">
+        <header>
+            <h2 id="welcome"></h2>
+            <div class="stats">
+                <div class="stat"><span>🏆</span><h3 id="points">0</h3><p>Points</p></div>
+                <div class="stat"><span>🍺</span><h3 id="drinks">0</h3><p>Drinks</p></div>
+                <div class="stat"><span>✅</span><h3 id="progress">0/30</h3><p>Completed</p></div>
+            </div>
+        </header>
+
+        <div class="main-tabs">
+            <button class="tab active" data-tab="challenges">🎯 Challenges</button>
+            <button class="tab" data-tab="leaderboard">🏆 Leaderboard</button>
+            <button class="tab" data-tab="drinks">🍺 Drinks</button>
+        </div>
+
+        <div id="challengesPanel" class="panel">
+            <div class="sub-tabs">
+                <button class="subtab active" data-level="easy">Easy</button>
+                <button class="subtab" data-level="medium">Medium</button>
+                <button class="subtab" data-level="hard">Hard</button>
+            </div>
+            <div id="challengeList"></div>
+        </div>
+
+        <div id="leaderboardPanel" class="panel hidden">
+            <div id="leaderboardList"></div>
+        </div>
+
+        <div id="drinksPanel" class="panel hidden">
+            <div class="drink-display">
+                <span class="drink-icon">🍺</span>
+                <h2 id="drinksBig">0</h2>
+                <p>drinks tonight</p>
+            </div>
+            <div class="drinkButtons">
+                <button id="minusDrink">−</button>
+                <button id="plusDrink">+</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+
+<script>
+// ---------- Firebase ----------
+const firebaseConfig = {
+  apiKey: "AIzaSyBOXgD_ed-VRx6BjWKrQEM-9I-4fos2Wfk",
+  authDomain: "isa-pub-crawl.firebaseapp.com",
+  databaseURL: "https://isa-pub-crawl-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "isa-pub-crawl",
+  storageBucket: "isa-pub-crawl.firebasestorage.app",
+  messagingSenderId: "611740058195",
+  appId: "1:611740058195:web:48f4e3869f137653cd3ca6",
+  measurementId: "G-P3NQYQMNLS"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+// ---------- Challenges ----------
+const challenges = [
+  { id: 1, category: "easy", points: 1, text: "Photobomb someone" },
+  { id: 2, category: "easy", points: 1, text: "Take a selfie with the drunkest person you see" },
+  { id: 3, category: "easy", points: 1, text: "Record a TikTok/Reel and post it" },
+  { id: 4, category: "easy", points: 1, text: "Beat a stranger at Rock-Paper-Scissors" },
+  { id: 5, category: "easy", points: 1, text: "Compliment a stranger's outfit and take a photo" },
+  { id: 6, category: "easy", points: 1, text: "Ask someone how to say 'Cheers' in their language" },
+  { id: 7, category: "easy", points: 1, text: "Convince a stranger you're from another nationality" },
+  { id: 8, category: "easy", points: 1, text: "Ask a stranger to recommend your next drink" },
+  { id: 9, category: "easy", points: 1, text: "Sit at a random table like you're part of the group" },
+  { id: 10, category: "easy", points: 1, text: "Ask someone what your vibe is" },
+  { id: 11, category: "medium", points: 3, text: "Serenade a stranger" },
+  { id: 12, category: "medium", points: 3, text: "Win a chug competition" },
+  { id: 13, category: "medium", points: 3, text: "Order a drink in the weirdest accent possible" },
+  { id: 14, category: "medium", points: 3, text: "Ask for a lighter, then pretend to be a monkey" },
+  { id: 15, category: "medium", points: 3, text: "Dance the Macarena with 3 strangers" },
+  { id: 16, category: "medium", points: 3, text: "Start a conga line" },
+  { id: 17, category: "medium", points: 3, text: "Fake-propose to a stranger" },
+  { id: 18, category: "medium", points: 3, text: "Pose with a stranger like you're on a movie poster" },
+  { id: 19, category: "medium", points: 3, text: "Challenge a stranger to a 5-second dance battle" },
+  { id: 20, category: "medium", points: 3, text: "Get a stranger to give you a motivational speech" },
+  { id: 21, category: "hard", points: 5, text: "Get a free drink" },
+  { id: 22, category: "hard", points: 5, text: "Convince strangers to chant 'MVP! MVP! MVP!'" },
+  { id: 23, category: "hard", points: 5, text: "Win an arm-wrestling match" },
+  { id: 24, category: "hard", points: 5, text: "Start a dance circle with strangers" },
+  { id: 25, category: "hard", points: 5, text: "Convince someone to carry you for a photo" },
+  { id: 26, category: "hard", points: 5, text: "Recreate a famous movie scene" },
+  { id: 27, category: "hard", points: 5, text: "Get 5 strangers to do the same pose" },
+  { id: 28, category: "hard", points: 5, text: "Pretend to be long-lost cousins with a stranger" },
+  { id: 29, category: "hard", points: 5, text: "Create a secret handshake with a stranger" },
+  { id: 30, category: "hard", points: 5, text: "Get a bartender to invent a drink name for you" }
+];
+
+// ---------- Identity ----------
+let playerId = localStorage.getItem("pubcrawl_id");
+if (!playerId) {
+  playerId = "p_" + Math.random().toString(36).slice(2, 10);
+  localStorage.setItem("pubcrawl_id", playerId);
+}
+
+let player = { name: "", points: 0, drinks: 0, completed: {} };
+let allPlayers = {};
+let currentMainTab = "challenges";
+let currentLevel = "easy";
+
+// ---------- Elements ----------
+const landing = document.getElementById("landing");
+const app = document.getElementById("app");
+const startBtn = document.getElementById("startBtn");
+const playerName = document.getElementById("playerName");
+const welcome = document.getElementById("welcome");
+const pointsEl = document.getElementById("points");
+const drinksEl = document.getElementById("drinks");
+const progressEl = document.getElementById("progress");
+const challengeList = document.getElementById("challengeList");
+const leaderboardList = document.getElementById("leaderboardList");
+const drinksBigEl = document.getElementById("drinksBig");
+const challengesPanel = document.getElementById("challengesPanel");
+const leaderboardPanel = document.getElementById("leaderboardPanel");
+const drinksPanel = document.getElementById("drinksPanel");
+const plusDrink = document.getElementById("plusDrink");
+const minusDrink = document.getElementById("minusDrink");
+
+// ---------- Start ----------
+const savedName = localStorage.getItem("pubcrawl_name");
+if (savedName) {
+  player.name = savedName;
+  showApp();
+}
+
+startBtn.addEventListener("click", () => {
+  const name = playerName.value.trim();
+  if (name === "") { alert("Enter your name!"); return; }
+  player.name = name;
+  localStorage.setItem("pubcrawl_name", name);
+  db.ref("players/" + playerId).update({ name, points: 0, drinks: 0 });
+  showApp();
+});
+
+function showApp() {
+  landing.classList.add("hidden");
+  landing.style.display = "none";
+  app.classList.remove("hidden");
+  app.style.display = "block";
+  welcome.innerHTML = `Hi, ${escapeHtml(player.name)} 👋`;
+  loadChallenges(currentLevel);
+  listenToPlayers();
+}
+
+function listenToPlayers() {
+  db.ref("players").on("value", (snap) => {
+    allPlayers = snap.val() || {};
+    const me = allPlayers[playerId];
+    if (me) {
+      player.points = me.points || 0;
+      player.drinks = me.drinks || 0;
+      player.completed = me.completed || {};
+    }
+    updateStats();
+    renderActivePanel();
+  });
+}
+
+function renderActivePanel() {
+  if (currentMainTab === "challenges") loadChallenges(currentLevel);
+  else if (currentMainTab === "leaderboard") renderLeaderboard();
+}
+
+// ---------- Main tabs ----------
+document.querySelectorAll(".main-tabs .tab").forEach((tab) => {
+  tab.addEventListener("click", () => {
+    document.querySelectorAll(".main-tabs .tab").forEach((t) => t.classList.remove("active"));
+    tab.classList.add("active");
+    currentMainTab = tab.dataset.tab;
+
+    challengesPanel.classList.add("hidden");
+    leaderboardPanel.classList.add("hidden");
+    drinksPanel.classList.add("hidden");
+
+    if (currentMainTab === "challenges") { challengesPanel.classList.remove("hidden"); loadChallenges(currentLevel); }
+    else if (currentMainTab === "leaderboard") { leaderboardPanel.classList.remove("hidden"); renderLeaderboard(); }
+    else if (currentMainTab === "drinks") { drinksPanel.classList.remove("hidden"); }
+  });
+});
+
+// ---------- Difficulty sub-tabs ----------
+document.querySelectorAll(".sub-tabs .subtab").forEach((tab) => {
+  tab.addEventListener("click", () => {
+    document.querySelectorAll(".sub-tabs .subtab").forEach((t) => t.classList.remove("active"));
+    tab.classList.add("active");
+    currentLevel = tab.dataset.level;
+    loadChallenges(currentLevel);
+  });
+});
+
+// ---------- Challenges ----------
+function loadChallenges(type) {
+  challengeList.innerHTML = "";
+  challenges.filter((c) => c.category === type).forEach((challenge) => {
+    const done = !!player.completed[challenge.id];
+    const card = document.createElement("div");
+    card.className = "challenge" + (done ? " completed" : "");
+    card.innerHTML = `
+      <div>
+        <h4>${escapeHtml(challenge.text)}</h4>
+        <small>${challenge.points} Point${challenge.points > 1 ? "s" : ""}</small>
+      </div>
+      <button>${done ? "Completed ✓" : "Complete"}</button>
+    `;
+    if (!done) card.querySelector("button").onclick = () => completeChallenge(challenge);
+    challengeList.appendChild(card);
+  });
+}
+
+function completeChallenge(challenge) {
+  const updates = {};
+  updates["players/" + playerId + "/completed/" + challenge.id] = true;
+  updates["players/" + playerId + "/points"] = (player.points || 0) + challenge.points;
+  updates["players/" + playerId + "/name"] = player.name;
+  db.ref().update(updates);
+}
+
+// ---------- Leaderboard ----------
+function renderLeaderboard() {
+  const rows = Object.entries(allPlayers)
+    .map(([id, p]) => ({ id, name: p.name || "???", points: p.points || 0, drinks: p.drinks || 0 }))
+    .sort((a, b) => b.points - a.points);
+
+  if (rows.length === 0) {
+    leaderboardList.innerHTML = `<p class="lb-empty">No players yet — be the first to score!</p>`;
+    return;
+  }
+  leaderboardList.innerHTML = rows.map((p, i) => `
+    <div class="lb-row ${p.id === playerId ? "me" : ""}">
+      <span class="lb-rank">#${i + 1}</span>
+      <span class="lb-name">${escapeHtml(p.name)}${p.id === playerId ? " (you)" : ""}</span>
+      <span class="lb-drinks">🍺 ${p.drinks}</span>
+      <span class="lb-points">${p.points} pts</span>
+    </div>
+  `).join("");
+}
+
+// ---------- Drinks ----------
+plusDrink.onclick = () => db.ref("players/" + playerId + "/drinks").transaction((cur) => (cur || 0) + 1);
+minusDrink.onclick = () => db.ref("players/" + playerId + "/drinks").transaction((cur) => Math.max((cur || 0) - 1, 0));
+
+// ---------- Stats ----------
+function updateStats() {
+  pointsEl.innerText = player.points;
+  drinksEl.innerText = player.drinks;
+  progressEl.innerText = `${Object.keys(player.completed).length}/30`;
+  if (drinksBigEl) drinksBigEl.innerText = player.drinks;
+}
+
+// ---------- Utils ----------
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, (m) => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[m]));
+}
+</script>
+</body>
+</html>
