@@ -1,50 +1,114 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ISA Pub Crawl Tracker</title>
-    <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>🍻 Pub Crawl Challenge</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
-    <div class="container">
-        <h1>🍻 ISA Pub Crawl Tracker</h1>
-        
-        <div class="nav">
-            <button onclick="showMain()">Home</button>
-            <button onclick="showChallenges()">Challenges</button>
-            <button onclick="showLeaderboard()">Leaderboard</button>
-        </div>
 
-        <!-- Home -->
-        <div id="homeScreen">
-            <input type="text" id="playerName" placeholder="Your name / nickname" />
-            <button onclick="saveName()">Join / Load Progress</button>
-            <div id="welcomeMessage"></div>
-            
-            <div class="drinks-box">
-                🍺 Drinks: <input type="number" id="drinkCount" value="0" min="0" onchange="updateDrinks()">
-            </div>
-            <button onclick="submitProgress()" class="save-btn">✅ Save Progress</button>
-        </div>
+<div class="container">
 
-        <!-- Challenges Screen -->
-        <div id="challengesScreen" class="screen">
-            <div class="sub-nav">
-                <button onclick="showPointTab(1)" class="point-btn">1 Point</button>
-                <button onclick="showPointTab(3)" class="point-btn">3 Points</button>
-                <button onclick="showPointTab(5)" class="point-btn">5 Points</button>
-            </div>
-            <div id="pointContent"></div>
-        </div>
+    <!-- Landing -->
 
-        <!-- Leaderboard -->
-        <div id="leaderboardScreen" class="screen">
-            <button onclick="refreshLeaderboard()" class="refresh-btn">🔄 Refresh Leaderboard</button>
-            <div id="leaderboard"></div>
-        </div>
+    <div id="landing">
+
+        <h1>🍻 Pub Crawl Challenge</h1>
+
+        <p>Who's playing tonight?</p>
+
+        <input
+            type="text"
+            id="playerName"
+            placeholder="Enter your name"
+        >
+
+        <button id="startBtn">
+            Start
+        </button>
+
     </div>
 
-    <script src="script.js"></script>
+    <!-- Main App -->
+
+    <div id="app" class="hidden">
+
+        <header>
+
+            <h2 id="welcome"></h2>
+
+            <div class="stats">
+
+                <div class="stat">
+                    <span>🏆</span>
+                    <h3 id="points">0</h3>
+                    <p>Points</p>
+                </div>
+
+                <div class="stat">
+                    <span>🍺</span>
+                    <h3 id="drinks">0</h3>
+                    <p>Drinks</p>
+                </div>
+
+                <div class="stat">
+                    <span>✅</span>
+                    <h3 id="progress">0/30</h3>
+                    <p>Completed</p>
+                </div>
+
+            </div>
+
+        </header>
+
+        <div class="tabs">
+
+            <button class="tab active" data-tab="easy">
+                Easy
+            </button>
+
+            <button class="tab" data-tab="medium">
+                Medium
+            </button>
+
+            <button class="tab" data-tab="hard">
+                Hard
+            </button>
+
+        </div>
+
+        <div id="challengeList"></div>
+
+        <button id="randomChallenge">
+            🎲 Random Challenge
+        </button>
+
+        <div class="drinkButtons">
+
+            <button id="minusDrink">
+                −
+            </button>
+
+            <button id="plusDrink">
+                +
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script src="script.js"></script>
+
 </body>
 </html>
