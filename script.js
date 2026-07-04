@@ -1,101 +1,295 @@
-let players = {};
-let currentPlayer = '';
+// ===============================
+// PUB CRAWL CHALLENGE
+// ===============================
 
-try {
-    players = JSON.parse(localStorage.getItem('pubCrawlPlayers')) || {};
-    currentPlayer = localStorage.getItem('currentPlayer') || '';
-} catch(e) {}
+// ---------- Challenge List ----------
 
-const challenges = [ /* paste your full challenges array here from previous messages */ ];
+const challenges = {
+    easy: [
+        "Photobomb someone",
+        "Take a selfie with the drunkest person you see",
+        "Record a TikTok/Reel and post it",
+        "Beat a stranger at Rock-Paper-Scissors",
+        "Compliment a stranger's outfit and take a photo",
+        "Ask someone how to say 'Cheers' in their language",
+        "Convince a stranger you're from another nationality",
+        "Ask a stranger to recommend your next drink",
+        "Sit at a random table like you're part of the group",
+        "Ask someone what your vibe is"
+    ],
 
-function saveName() {
-    const name = document.getElementById('playerName').value.trim();
-    if (!name) return alert("Enter your name");
-    currentPlayer = name;
-    localStorage.setItem('currentPlayer', name);
-    document.getElementById('welcomeMessage').innerHTML = `<h2>Welcome, ${name}!</h2>`;
-}
+    medium: [
+        "Serenade a stranger",
+        "Win a chug competition",
+        "Order a drink in the weirdest accent possible",
+        "Ask for a lighter, then pretend to be a monkey",
+        "Dance the Macarena with 3 strangers",
+        "Start a conga line",
+        "Fake-propose to a stranger",
+        "Pose with a stranger like you're on a movie poster",
+        "Challenge a stranger to a 5-second dance battle",
+        "Get a stranger to give you a motivational speech"
+    ],
 
-function toggleChallenge(id, completed) {
-    if (!currentPlayer) return;
-    if (!players[currentPlayer]) players[currentPlayer] = {challenges: {}, drinks: 0};
-    if (!players[currentPlayer].challenges) players[currentPlayer].challenges = {};
-    players[currentPlayer].challenges[id] = completed;
-    localStorage.setItem('pubCrawlPlayers', JSON.stringify(players));
-}
-
-function updateDrinks() {
-    if (!currentPlayer) return;
-    if (!players[currentPlayer]) players[currentPlayer] = {challenges: {}, drinks: 0};
-    players[currentPlayer].drinks = parseInt(document.getElementById('drinkCount').value) || 0;
-    localStorage.setItem('pubCrawlPlayers', JSON.stringify(players));
-}
-
-function calculateScore(playerName) {
-    if (!players[playerName] || !players[playerName].challenges) return 0;
-    let score = 0;
-    Object.keys(players[playerName].challenges).forEach(id => {
-        if (players[playerName].challenges[id]) {
-            const ch = challenges.find(c => c.id == id);
-            if (ch) score += ch.points;
-        }
-    });
-    return score;
-}
-
-function submitProgress() {
-    if (!currentPlayer) return alert("Enter name first");
-    alert("✅ Progress saved!");
-    refreshLeaderboard();
-}
-
-function refreshLeaderboard() {
-    const board = document.getElementById('leaderboard');
-    let html = '<table><tr><th>Rank</th><th>Player</th><th>Points</th><th>Drinks</th></tr>';
-    const sorted = Object.keys(players)
-        .map(name => ({name, score: calculateScore(name), drinks: players[name].drinks || 0}))
-        .sort((a, b) => b.score - a.score);
-    sorted.forEach((p, i) => html += `<tr><td>${i+1}</td><td>${p.name}</td><td><strong>${p.score}</strong></td><td>${p.drinks}</td></tr>`);
-    html += '</table>';
-    board.innerHTML = sorted.length ? html : '<p>No players yet.</p>';
-}
-
-function showMain() {
-    hideAllScreens();
-    document.getElementById('homeScreen').classList.add('active');
-}
-
-function showChallenges() {
-    hideAllScreens();
-    document.getElementById('challengesScreen').classList.add('active');
-    showPointTab(1); // default to 1pt
-}
-
-function showLeaderboard() {
-    hideAllScreens();
-    document.getElementById('leaderboardScreen').classList.add('active');
-    refreshLeaderboard();
-}
-
-function hideAllScreens() {
-    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-}
-
-function showPointTab(pt) {
-    const container = document.getElementById('pointContent');
-    let html = `<div class="points-header">${pt} POINT CHALLENGES</div>`;
-    const filtered = challenges.filter(c => c.points === pt);
-    filtered.forEach(ch => {
-        const checked = (players[currentPlayer] && players[currentPlayer].challenges && players[currentPlayer].challenges[ch.id]) ? 'checked' : '';
-        html += `<div class="challenge"><input type="checkbox" ${checked} onchange="toggleChallenge(${ch.id}, this.checked)"><label>${ch.name} (+${ch.points} pts)</label></div>`;
-    });
-    container.innerHTML = html;
-}
-
-// Init
-window.onload = () => {
-    if (currentPlayer) {
-        document.getElementById('playerName').value = currentPlayer;
-        document.getElementById('welcomeMessage').innerHTML = `<h2>Welcome, ${currentPlayer}!</h2>`;
-    }
+    hard: [
+        "Get a free drink",
+        "Convince strangers to chant 'MVP! MVP! MVP!'",
+        "Win an arm-wrestling match",
+        "Start a dance circle with strangers",
+        "Convince someone to carry you for a photo",
+        "Recreate a famous movie scene",
+        "Get 5 strangers to do the same pose",
+        "Pretend to be long-lost cousins with a stranger",
+        "Create a secret handshake with a stranger",
+        "Get a bartender to invent a drink name for you"
+    ]
 };
+
+// ---------- Points ----------
+
+const pointValues = {
+    easy: 1,
+    medium: 3,
+    hard: 5
+};
+
+// ---------- Storage ----------
+
+let player = JSON.parse(localStorage.getItem("pubcrawl"));
+
+if (!player) {
+
+    player = {
+        name: "",
+        points: 0,
+        drinks: 0,
+        completed: []
+    };
+
+}
+
+// ---------- Elements ----------
+
+const landing = document.getElementById("landing");
+const app = document.getElementById("app");
+
+const startBtn = document.getElementById("startBtn");
+const playerName = document.getElementById("playerName");
+
+const welcome = document.getElementById("welcome");
+const points = document.getElementById("points");
+const drinks = document.getElementById("drinks");
+const progress = document.getElementById("progress");
+
+const challengeList = document.getElementById("challengeList");
+
+const plusDrink = document.getElementById("plusDrink");
+const minusDrink = document.getElementById("minusDrink");
+
+const randomBtn = document.getElementById("randomChallenge");
+
+// ---------- Start ----------
+
+if (player.name !== "") {
+
+    showApp();
+
+}
+
+startBtn.addEventListener("click", () => {
+
+    const name = playerName.value.trim();
+
+    if (name === "") {
+
+        alert("Enter your name!");
+
+        return;
+
+    }
+
+    player.name = name;
+
+    save();
+
+    showApp();
+
+});
+
+// ---------- Show App ----------
+
+function showApp() {
+
+    landing.classList.add("hidden");
+
+    app.classList.remove("hidden");
+
+    welcome.innerHTML = `Hi, ${player.name} 👋`;
+
+    loadChallenges("easy");
+
+    updateStats();
+
+}
+
+// ---------- Tabs ----------
+
+document.querySelectorAll(".tab").forEach(tab => {
+
+    tab.addEventListener("click", () => {
+
+        document.querySelectorAll(".tab").forEach(t =>
+            t.classList.remove("active")
+        );
+
+        tab.classList.add("active");
+
+        loadChallenges(tab.dataset.tab);
+
+    });
+
+});
+
+// ---------- Challenges ----------
+
+function loadChallenges(type) {
+
+    challengeList.innerHTML = "";
+
+    challenges[type].forEach((challenge, index) => {
+
+        const id = type + index;
+
+        const card = document.createElement("div");
+
+        card.className = "challenge";
+
+        if (player.completed.includes(id)) {
+
+            card.classList.add("completed");
+
+        }
+
+        card.innerHTML = `
+
+            <div>
+
+                <h4>${challenge}</h4>
+
+                <small>${pointValues[type]} Point${pointValues[type] > 1 ? "s" : ""}</small>
+
+            </div>
+
+            <button>
+
+                ${player.completed.includes(id) ? "Completed ✓" : "Complete"}
+
+            </button>
+
+        `;
+
+        const button = card.querySelector("button");
+
+        if (!player.completed.includes(id)) {
+
+            button.onclick = () => {
+
+                player.completed.push(id);
+
+                player.points += pointValues[type];
+
+                save();
+
+                loadChallenges(type);
+
+                updateStats();
+
+            };
+
+        }
+
+        challengeList.appendChild(card);
+
+    });
+
+}
+
+// ---------- Drinks ----------
+
+plusDrink.onclick = () => {
+
+    player.drinks++;
+
+    save();
+
+    updateStats();
+
+};
+
+minusDrink.onclick = () => {
+
+    if (player.drinks > 0) {
+
+        player.drinks--;
+
+    }
+
+    save();
+
+    updateStats();
+
+};
+
+// ---------- Stats ----------
+
+function updateStats() {
+
+    points.innerText = player.points;
+
+    drinks.innerText = player.drinks;
+
+    progress.innerText = `${player.completed.length}/30`;
+
+}
+
+// ---------- Random Challenge ----------
+
+randomBtn.onclick = () => {
+
+    const currentTab = document.querySelector(".tab.active").dataset.tab;
+
+    const unfinished = [];
+
+    challenges[currentTab].forEach((challenge, index) => {
+
+        const id = currentTab + index;
+
+        if (!player.completed.includes(id)) {
+
+            unfinished.push(challenge);
+
+        }
+
+    });
+
+    if (unfinished.length === 0) {
+
+        alert("🎉 You completed every challenge in this category!");
+
+        return;
+
+    }
+
+    const random = unfinished[Math.floor(Math.random() * unfinished.length)];
+
+    alert("🎲 Your random challenge:\n\n" + random);
+
+};
+
+// ---------- Save ----------
+
+function save() {
+
+    localStorage.setItem("pubcrawl", JSON.stringify(player));
+
+}
