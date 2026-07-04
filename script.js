@@ -2,6 +2,29 @@
 // PUB CRAWL CHALLENGE
 // ===============================
 
+// ---------- FIREBASE SETUP (do this before you push live) ----------
+// 1. Go to https://console.firebase.google.com -> Add project (free, ~1 min)
+// 2. Build > Realtime Database > Create Database > start in "test mode" for now
+// 3. Project settings (gear icon) > General > "Your apps" > click </> (Web app) > register it
+// 4. Copy the firebaseConfig object it gives you and paste it below, replacing the placeholder
+// 5. In Realtime Database > Rules, paste this and click Publish:
+//      { "rules": { ".read": true, ".write": true } }
+//    This makes it open read/write — fine for one casual night, since you said anyone
+//    editing anyone's score is part of the fun. Lock it down or delete the DB after.
+
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT.firebaseapp.com",
+  databaseURL: "https://YOUR_PROJECT-default-rtdb.firebaseio.com",
+  projectId: "YOUR_PROJECT",
+  storageBucket: "YOUR_PROJECT.appspot.com",
+  messagingSenderId: "YOUR_SENDER_ID",
+  appId: "YOUR_APP_ID"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
 // ---------- Challenge List ----------
 
 const challenges = [
@@ -42,28 +65,16 @@ const challenges = [
   { id: 30, category: "hard", points: 5, text: "Get a bartender to invent a drink name for you" }
 ];
 
-// ---------- Points ----------
+// ---------- Identity (per-device, kept in localStorage so a refresh doesn't lose your spot) ----------
 
-const pointValues = {
-    easy: 1,
-    medium: 3,
-    hard: 5
-};
-
-// ---------- Storage ----------
-
-let player = JSON.parse(localStorage.getItem("pubcrawl"));
-
-if (!player) {
-
-    player = {
-        name: "",
-        points: 0,
-        drinks: 0,
-        completed: []
-    };
-
+let playerId = localStorage.getItem("pubcrawl_id");
+if (!playerId) {
+  playerId = "p_" + Math.random().toString(36).slice(2, 10);
+  localStorage.setItem("pubcrawl_id", playerId);
 }
+
+let player = { name: "", points: 0, drinks: 0, completed: {} };
+let allPlayers = {};
 
 // ---------- Elements ----------
 
@@ -74,11 +85,12 @@ const startBtn = document.getElementById("startBtn");
 const playerName = document.getElementById("playerName");
 
 const welcome = document.getElementById("welcome");
-const points = document.getElementById("points");
-const drinks = document.getElementById("drinks");
-const progress = document.getElementById("progress");
+const pointsEl = document.getElementById("points");
+const drinksEl = document.getElementById("drinks");
+const progressEl = document.getElementById("progress");
 
 const challengeList = document.getElementById("challengeList");
+const leaderboardList = document.getElementById("leaderboardList");
 
 const plusDrink = document.getElementById("plusDrink");
 const minusDrink = document.getElementById("minusDrink");
@@ -87,206 +99,195 @@ const randomBtn = document.getElementById("randomChallenge");
 
 // ---------- Start ----------
 
-if (player.name !== "") {
-
-    showApp();
-
+const savedName = localStorage.getItem("pubcrawl_name");
+if (savedName) {
+  player.name = savedName;
+  showApp();
 }
 
 startBtn.addEventListener("click", () => {
-
-    const name = playerName.value.trim();
-
-    if (name === "") {
-
-        alert("Enter your name!");
-
-        return;
-
-    }
-
-    player.name = name;
-
-    save();
-
-    showApp();
-
+  const name = playerName.value.trim();
+  if (name === "") {
+    alert("Enter your name!");
+    return;
+  }
+  player.name = name;
+  localStorage.setItem("pubcrawl_name", name);
+  db.ref("players/" + playerId).update({ name, points: 0, drinks: 0 });
+  showApp();
 });
 
 // ---------- Show App ----------
 
 function showApp() {
+  landing.classList.add("hidden");
+  app.classList.remove("hidden");
+  welcome.innerHTML = `Hi, ${escapeHtml(player.name)} 👋`;
+  loadChallenges("easy");
+  listenToPlayers();
+}
 
-    landing.classList.add("hidden");
+// ---------- Live shared data ----------
 
-    app.classList.remove("hidden");
-
-    welcome.innerHTML = `Hi, ${player.name} 👋`;
-
-    loadChallenges("easy");
-
+function listenToPlayers() {
+  db.ref("players").on("value", (snap) => {
+    allPlayers = snap.val() || {};
+    const me = allPlayers[playerId];
+    if (me) {
+      player.points = me.points || 0;
+      player.drinks = me.drinks || 0;
+      player.completed = me.completed || {};
+    }
     updateStats();
 
+    const activeTab = document.querySelector(".tab.active")?.dataset.tab;
+    if (activeTab === "leaderboard") {
+      renderLeaderboard();
+    } else if (activeTab) {
+      loadChallenges(activeTab);
+    }
+  });
 }
 
 // ---------- Tabs ----------
 
-document.querySelectorAll(".tab").forEach(tab => {
+document.querySelectorAll(".tab").forEach((tab) => {
+  tab.addEventListener("click", () => {
+    document.querySelectorAll(".tab").forEach((t) => t.classList.remove("active"));
+    tab.classList.add("active");
 
-    tab.addEventListener("click", () => {
+    const type = tab.dataset.tab;
 
-        document.querySelectorAll(".tab").forEach(t =>
-            t.classList.remove("active")
-        );
-
-        tab.classList.add("active");
-
-        loadChallenges(tab.dataset.tab);
-
-    });
-
+    if (type === "leaderboard") {
+      challengeList.classList.add("hidden");
+      randomBtn.classList.add("hidden");
+      leaderboardList.classList.remove("hidden");
+      renderLeaderboard();
+    } else {
+      leaderboardList.classList.add("hidden");
+      challengeList.classList.remove("hidden");
+      randomBtn.classList.remove("hidden");
+      loadChallenges(type);
+    }
+  });
 });
 
 // ---------- Challenges ----------
 
 function loadChallenges(type) {
+  challengeList.innerHTML = "";
 
-    challengeList.innerHTML = "";
+  challenges
+    .filter((c) => c.category === type)
+    .forEach((challenge) => {
+      const done = !!player.completed[challenge.id];
 
-    challenges[type].forEach((challenge, index) => {
+      const card = document.createElement("div");
+      card.className = "challenge" + (done ? " completed" : "");
 
-        const id = type + index;
+      card.innerHTML = `
+        <div>
+          <h4>${escapeHtml(challenge.text)}</h4>
+          <small>${challenge.points} Point${challenge.points > 1 ? "s" : ""}</small>
+        </div>
+        <button>${done ? "Completed ✓" : "Complete"}</button>
+      `;
 
-        const card = document.createElement("div");
+      if (!done) {
+        card.querySelector("button").onclick = () => completeChallenge(challenge);
+      }
 
-        card.className = "challenge";
-
-        if (player.completed.includes(id)) {
-
-            card.classList.add("completed");
-
-        }
-
-        card.innerHTML = `
-
-            <div>
-
-                <h4>${challenge}</h4>
-
-                <small>${pointValues[type]} Point${pointValues[type] > 1 ? "s" : ""}</small>
-
-            </div>
-
-            <button>
-
-                ${player.completed.includes(id) ? "Completed ✓" : "Complete"}
-
-            </button>
-
-        `;
-
-        const button = card.querySelector("button");
-
-        if (!player.completed.includes(id)) {
-
-            button.onclick = () => {
-
-                player.completed.push(id);
-
-                player.points += pointValues[type];
-
-                save();
-
-                loadChallenges(type);
-
-                updateStats();
-
-            };
-
-        }
-
-        challengeList.appendChild(card);
-
+      challengeList.appendChild(card);
     });
+}
 
+function completeChallenge(challenge) {
+  const updates = {};
+  updates["players/" + playerId + "/completed/" + challenge.id] = true;
+  updates["players/" + playerId + "/points"] = (player.points || 0) + challenge.points;
+  updates["players/" + playerId + "/name"] = player.name;
+  db.ref().update(updates);
+}
+
+// ---------- Leaderboard ----------
+
+function renderLeaderboard() {
+  const rows = Object.entries(allPlayers)
+    .map(([id, p]) => ({
+      id,
+      name: p.name || "???",
+      points: p.points || 0,
+      completedCount: p.completed ? Object.keys(p.completed).length : 0
+    }))
+    .sort((a, b) => b.points - a.points);
+
+  if (rows.length === 0) {
+    leaderboardList.innerHTML = `<p class="lb-empty">No players yet — be the first to score!</p>`;
+    return;
+  }
+
+  leaderboardList.innerHTML = rows
+    .map(
+      (p, i) => `
+      <div class="lb-row ${p.id === playerId ? "me" : ""}">
+        <span class="lb-rank">#${i + 1}</span>
+        <span class="lb-name">${escapeHtml(p.name)}${p.id === playerId ? " (you)" : ""}</span>
+        <span class="lb-points">${p.points} pts</span>
+      </div>
+    `
+    )
+    .join("");
 }
 
 // ---------- Drinks ----------
 
 plusDrink.onclick = () => {
-
-    player.drinks++;
-
-    save();
-
-    updateStats();
-
+  db.ref("players/" + playerId + "/drinks").transaction((cur) => (cur || 0) + 1);
 };
 
 minusDrink.onclick = () => {
-
-    if (player.drinks > 0) {
-
-        player.drinks--;
-
-    }
-
-    save();
-
-    updateStats();
-
+  db.ref("players/" + playerId + "/drinks").transaction((cur) => Math.max((cur || 0) - 1, 0));
 };
 
 // ---------- Stats ----------
 
 function updateStats() {
-
-    points.innerText = player.points;
-
-    drinks.innerText = player.drinks;
-
-    progress.innerText = `${player.completed.length}/30`;
-
+  pointsEl.innerText = player.points;
+  drinksEl.innerText = player.drinks;
+  progressEl.innerText = `${Object.keys(player.completed).length}/30`;
 }
 
 // ---------- Random Challenge ----------
 
 randomBtn.onclick = () => {
+  const currentTab = document.querySelector(".tab.active").dataset.tab;
 
-    const currentTab = document.querySelector(".tab.active").dataset.tab;
+  if (currentTab === "leaderboard") {
+    alert("Pick a difficulty tab first!");
+    return;
+  }
 
-    const unfinished = [];
+  const unfinished = challenges.filter(
+    (c) => c.category === currentTab && !player.completed[c.id]
+  );
 
-    challenges[currentTab].forEach((challenge, index) => {
+  if (unfinished.length === 0) {
+    alert("🎉 You completed every challenge in this category!");
+    return;
+  }
 
-        const id = currentTab + index;
-
-        if (!player.completed.includes(id)) {
-
-            unfinished.push(challenge);
-
-        }
-
-    });
-
-    if (unfinished.length === 0) {
-
-        alert("🎉 You completed every challenge in this category!");
-
-        return;
-
-    }
-
-    const random = unfinished[Math.floor(Math.random() * unfinished.length)];
-
-    alert("🎲 Your random challenge:\n\n" + random);
-
+  const random = unfinished[Math.floor(Math.random() * unfinished.length)];
+  alert("🎲 Your random challenge:\n\n" + random.text);
 };
 
-// ---------- Save ----------
+// ---------- Utils ----------
 
-function save() {
-
-    localStorage.setItem("pubcrawl", JSON.stringify(player));
-
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, (m) => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#39;"
+  }[m]));
 }

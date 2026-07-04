@@ -3,112 +3,76 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
   <title>🍻 Pub Crawl Challenge</title>
-
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
   <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
-
 <div class="container">
-
     <!-- Landing -->
-
     <div id="landing">
-
         <h1>🍻 Pub Crawl Challenge</h1>
-
         <p>Who's playing tonight?</p>
-
         <input
             type="text"
             id="playerName"
             placeholder="Enter your name"
         >
-
         <button id="startBtn">
             Start
         </button>
-
     </div>
 
     <!-- Main App -->
-
     <div id="app" class="hidden">
-
         <header>
-
             <h2 id="welcome"></h2>
-
             <div class="stats">
-
                 <div class="stat">
                     <span>🏆</span>
                     <h3 id="points">0</h3>
                     <p>Points</p>
                 </div>
-
                 <div class="stat">
                     <span>🍺</span>
                     <h3 id="drinks">0</h3>
                     <p>Drinks</p>
                 </div>
-
                 <div class="stat">
                     <span>✅</span>
                     <h3 id="progress">0/30</h3>
                     <p>Completed</p>
                 </div>
-
             </div>
-
         </header>
 
         <div class="tabs">
-
-            <button class="tab active" data-tab="easy">
-                Easy
-            </button>
-
-            <button class="tab" data-tab="medium">
-                Medium
-            </button>
-
-            <button class="tab" data-tab="hard">
-                Hard
-            </button>
-
+            <button class="tab active" data-tab="easy">Easy</button>
+            <button class="tab" data-tab="medium">Medium</button>
+            <button class="tab" data-tab="hard">Hard</button>
+            <button class="tab" data-tab="leaderboard">🏆 Board</button>
         </div>
 
         <div id="challengeList"></div>
+        <div id="leaderboardList" class="hidden"></div>
 
         <button id="randomChallenge">
             🎲 Random Challenge
         </button>
 
         <div class="drinkButtons">
-
-            <button id="minusDrink">
-                −
-            </button>
-
-            <button id="plusDrink">
-                +
-            </button>
-
+            <button id="minusDrink">−</button>
+            <button id="plusDrink">+</button>
         </div>
-
     </div>
-
 </div>
 
-<script src="script.js"></script>
+<!-- Firebase (compat build — no bundler needed, works on plain GitHub Pages) -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 
+<script src="script.js"></script>
 </body>
 </html>
