@@ -12,16 +12,28 @@
 //    This makes it open read/write — fine for one casual night, since you said anyone
 //    editing anyone's score is part of the fun. Lock it down or delete the DB after.
 
+// Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT.firebaseapp.com",
-  databaseURL: "https://YOUR_PROJECT-default-rtdb.firebaseio.com",
-  projectId: "YOUR_PROJECT",
-  storageBucket: "YOUR_PROJECT.appspot.com",
-  messagingSenderId: "YOUR_SENDER_ID",
-  appId: "YOUR_APP_ID"
+  apiKey: "AIzaSyBOXgD_ed-VRx6BjWKrQEM-9I-4fos2Wfk",
+  authDomain: "isa-pub-crawl.firebaseapp.com",
+  databaseURL: "https://isa-pub-crawl-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "isa-pub-crawl",
+  storageBucket: "isa-pub-crawl.firebasestorage.app",
+  messagingSenderId: "611740058195",
+  appId: "1:611740058195:web:48f4e3869f137653cd3ca6",
+  measurementId: "G-P3NQYQMNLS"
 };
 
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
